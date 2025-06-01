@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35818.85
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimdIsMagicDust", "SimdIsMagicDust\SimdIsMagicDust.csproj", "{A26BA1BB-0F11-413A-8B6A-1754A9A5AA14}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimdIsMagicDustTests", "SimdIsMagicDustTests\SimdIsMagicDustTests.csproj", "{2C635979-8FF6-4830-B076-5A81E48046C7}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A26BA1BB-0F11-413A-8B6A-1754A9A5AA14} = {A26BA1BB-0F11-413A-8B6A-1754A9A5AA14}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimdIsMagicDustBenchmarks", "SimdIsMagicDustBenchmarks\SimdIsMagicDustBenchmarks.csproj", "{31B1476A-0008-473D-9450-92071864B0FB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A26BA1BB-0F11-413A-8B6A-1754A9A5AA14} = {A26BA1BB-0F11-413A-8B6A-1754A9A5AA14}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimdPlayground", "SimdPlayground\SimdPlayground.csproj", "{2A8E2EAB-A93A-49CC-B6B5-351CC3BC3F97}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A26BA1BB-0F11-413A-8B6A-1754A9A5AA14} = {A26BA1BB-0F11-413A-8B6A-1754A9A5AA14}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A26BA1BB-0F11-413A-8B6A-1754A9A5AA14}.Debug|Any CPU.ActiveCfg = Release|Any CPU
+		{A26BA1BB-0F11-413A-8B6A-1754A9A5AA14}.Debug|Any CPU.Build.0 = Release|Any CPU
+		{A26BA1BB-0F11-413A-8B6A-1754A9A5AA14}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A26BA1BB-0F11-413A-8B6A-1754A9A5AA14}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C635979-8FF6-4830-B076-5A81E48046C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C635979-8FF6-4830-B076-5A81E48046C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C635979-8FF6-4830-B076-5A81E48046C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C635979-8FF6-4830-B076-5A81E48046C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{31B1476A-0008-473D-9450-92071864B0FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31B1476A-0008-473D-9450-92071864B0FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31B1476A-0008-473D-9450-92071864B0FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31B1476A-0008-473D-9450-92071864B0FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A8E2EAB-A93A-49CC-B6B5-351CC3BC3F97}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A8E2EAB-A93A-49CC-B6B5-351CC3BC3F97}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A8E2EAB-A93A-49CC-B6B5-351CC3BC3F97}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A8E2EAB-A93A-49CC-B6B5-351CC3BC3F97}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {85D8C641-4BEF-414A-815F-F84C15AAEFFE}
+	EndGlobalSection
+EndGlobal
