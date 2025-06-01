@@ -16,7 +16,7 @@
 
   <Target Name="BuildScalar" AfterTargets="Build" Condition="'$(IsScalarBuild)' != 'true'">
     <MSBuild Projects="$(MSBuildProjectFullPath)" Properties="DefineConstants=DISABLE_MAGIC_DUST;Configuration=$(Configuration);OutputPath=$(OutputPath)Scalar\;IsScalarBuild=true" Targets="Build" />
-    <Move SourceFiles="$(OutputPath)Scalar\$(AssemblyName).dll" DestinationFiles="$(OutputPath)$(AssemblyName).Scalar.dll" />
+    <Move SourceFiles="$(OutputPath)Scalar\$(AssemblyName).dll" DestinationFiles="$(OutputPath)$(AssemblyName).scalar.dll" />
   </Target>
 
 </Project>
