@@ -46,9 +46,9 @@ namespace SimdIsMagicDust {
         public static unsafe bool All(bool4 value) {
 #if !DISABLE_MAGIC_DUST
             if (AdvSimd.Arm64.IsSupported) {
-                // like above, but now three 0xFFFF_FFFFs sum to 0x3_FFFF_FFFC.
+                // like above, but now four 0xFFFF_FFFFs sum to 0x3_FFFF_FFFC.
                 var res = AdvSimd.Arm64.AddAcross(value);
-                return res[1] == 3;
+                return res[0] == 0xFFFF_FFFC;
             } else if (Sse41.IsSupported) {
                 // TestC here returns "(~value & true) == 0")
                 return Sse41.TestC(value, Vector128.Create(0xFFFF_FFFF));

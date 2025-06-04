@@ -26,7 +26,7 @@ jobs:
     - name: Build
       run: dotnet build --no-restore /p:DefineConstants="EXCLUDE_FROM_CI"
     - name: Test-x86
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test --no-build --verbosity normal -- NUnit.DisplayName=FullName
 
   test-arm:
 
@@ -43,4 +43,4 @@ jobs:
     - name: Build
       run: dotnet build --no-restore /p:DefineConstants="EXCLUDE_FROM_CI"
     - name: Test-arm
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test --no-build --verbosity normal -- NUnit.DisplayName=FullName
