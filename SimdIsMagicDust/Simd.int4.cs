@@ -43,11 +43,15 @@ namespace SimdIsMagicDust {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Any(int4 value) {
 #if !DISABLE_MAGIC_DUST
-            if (Sse41.IsSupported) {
+            if (AdvSimd.IsSupported) {
+                // TODO -- fallback for now
+            } else if (Sse41.IsSupported) {
                 return !Sse41.TestZ(
                     (Vector128<uint>)value,
                     Vector128.Create(0xFFFF_FFFF)
                 );
+            } else if (PackedSimd.IsSupported) {
+                return PackedSimd.AnyTrue(value);
             }
 #endif
             return Any((bool4)value);
@@ -95,8 +99,8 @@ namespace SimdIsMagicDust {
                 // (Is this even worth it compared to serial?)
                 int4 zwxy = Sse2.Shuffle(value, MmShuffle.zwxy);
                 var v1 = value + zwxy;
-                int4 xyxy = Sse2.Shuffle(v1, MmShuffle.xyxy);
-                var v2 = v1 + xyxy;
+                int4 yzyz = Sse2.Shuffle(v1, MmShuffle.yzyz);
+                var v2 = v1 + yzyz;
                 return v2.x;
             } else if (Sse.IsSupported) {
                 int4 zwxy = (int4)Sse.Shuffle(
@@ -179,8 +183,8 @@ namespace SimdIsMagicDust {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int4 Select(bool4 condition, int4 trues, int4 falses) {
 #if !DISABLE_MAGIC_DUST
-            if (AdvSimd.Arm64.IsSupported
-                || Sse2.IsSupported
+            if (AdvSimd.IsSupported
+                || Sse2.IsSupported // Unfortunately not Sse
                 || PackedSimd.IsSupported) {
                 var val = (int4)(Vector128<int>)condition;
                 return (val & trues) + (~val & falses);

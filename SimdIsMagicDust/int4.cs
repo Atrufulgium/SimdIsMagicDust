@@ -193,22 +193,31 @@ namespace SimdIsMagicDust {
         public static bool4 operator <=(int4 left, int4 right)
             => right >= left;
 
-        public static unsafe implicit operator Vector128<int>(int4 val)
-            => *(Vector128<int>*)&val;
-        public static unsafe implicit operator int4(Vector128<int> val)
-            => *(int4*)&val;
+        public static implicit operator Vector128<int>(int4 val)
+            => Unsafe.As<int4, Vector128<int>>(ref val);
+        public static implicit operator int4(Vector128<int> val)
+            => Unsafe.As<Vector128<int>, int4>(ref val);
 
-        public static unsafe explicit operator Vector128<uint>(int4 val)
-            => *(Vector128<uint>*)&val;
-        public static unsafe explicit operator int4(Vector128<uint> val)
-            => *(int4*)&val;
+        public static explicit operator Vector128<uint>(int4 val)
+            => Unsafe.As<int4, Vector128<uint>>(ref val);
+        public static explicit operator int4(Vector128<uint> val)
+            => Unsafe.As<Vector128<uint>, int4>(ref val);
 
-        public static unsafe explicit operator Vector128<float>(int4 val)
-            => *(Vector128<float>*)&val;
-        public static unsafe explicit operator int4(Vector128<float> val)
-            => *(int4*)&val;
+        // (Needed for Sse shuffles that somewhy only apply to floats,
+        //  with the int shuffle only in Sse2.)
+        public static explicit operator Vector128<float>(int4 val)
+            => Unsafe.As<int4, Vector128<float>>(ref val);
+        public static explicit operator int4(Vector128<float> val)
+            => Unsafe.As<Vector128<float>, int4>(ref val);
 
         public static implicit operator int4(int val) => Vector128.Create(val);
+        // _Technically_ incorrect as ValueTuple<> is LayoutKind.Auto making
+        // you unable to assume it won't shuffle the four args around, but...
+        // Really. It just won't do that.
+        public static implicit operator (int, int, int, int)(int4 val)
+            => Unsafe.As<int4, ValueTuple<int, int, int, int>>(ref val);
+        public static implicit operator int4((int, int, int, int) val)
+            => Unsafe.As<ValueTuple<int,int,int,int>, int4>(ref val);
 
         public override readonly bool Equals(object? obj)
             => obj is int4 @int && Equals(@int);
@@ -222,5 +231,8 @@ namespace SimdIsMagicDust {
         public override readonly int GetHashCode() {
             return HashCode.Combine(x, y, z, w);
         }
+
+        public override readonly string ToString()
+            => $"int4({x}, {y}, {z}, {w})";
     }
 }

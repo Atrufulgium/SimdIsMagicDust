@@ -131,19 +131,25 @@ namespace SimdIsMagicDust {
             return new bool4(left.x != right.x, left.y != right.y, left.z != right.z, left.w != right.w);
         }
 
-        public static unsafe implicit operator Vector128<uint>(bool4 val)
-            => *(Vector128<uint>*)&val;
-        public static unsafe implicit operator bool4(Vector128<uint> val)
-            => *(bool4*)&val;
-        public static unsafe explicit operator Vector128<int>(bool4 val)
-            => *(Vector128<int>*)&val;
-        public static unsafe explicit operator bool4(Vector128<int> val)
-            => *(bool4*)&val;
+        public static implicit operator Vector128<uint>(bool4 val)
+            => Unsafe.As<bool4, Vector128<uint>>(ref val);
+        public static implicit operator bool4(Vector128<uint> val)
+            => Unsafe.As<Vector128<uint>, bool4>(ref val);
+
+        public static explicit operator Vector128<int>(bool4 val)
+            => Unsafe.As<bool4, Vector128<int>>(ref val);
+        public static explicit operator bool4(Vector128<int> val)
+            => Unsafe.As<Vector128<int>, bool4>(ref val);
+
+        public static explicit operator (bool, bool, bool, bool)(bool4 val)
+            => new(val.x, val.y, val.z, val.w);
+        public static explicit operator bool4((bool, bool, bool, bool) val)
+            => new(val.Item1, val.Item2, val.Item3, val.Item4);
 
         // We internally store all bits instead of just the lsb, so no lazy reinterpret.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe explicit operator int4(bool4 val) {
-            var ival = *(int4*)&val;
+        public static explicit operator int4(bool4 val) {
+            var ival = Unsafe.As<bool4, int4>(ref val);
 #if !DISABLE_MAGIC_DUST
             if (AdvSimd.IsSupported) {
                 return AdvSimd.And(ival, (int4)1);
@@ -172,5 +178,8 @@ namespace SimdIsMagicDust {
         public override readonly int GetHashCode() {
             return HashCode.Combine(_x, _y, _z, _w);
         }
+
+        public override readonly string ToString()
+            => $"bool4({x}, {y}, {z}, {w})";
     }
 }

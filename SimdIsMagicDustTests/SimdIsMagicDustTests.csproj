@@ -27,7 +27,7 @@
 
   <Target Name="BuildScalar" AfterTargets="Build" Condition="'$(Configuration)' != 'Scalar' And '$(IsScalarBuild)' != 'true'">
     <MSBuild Projects="$(MSBuildProjectFullPath)"
-             Properties="Configuration=Scalar;IsScalarBuild=true"
+             Properties="DefineConstants=DISABLE_MAGIC_DUST;Configuration=Scalar;IsScalarBuild=true"
              Targets="Build" />
   </Target>
 

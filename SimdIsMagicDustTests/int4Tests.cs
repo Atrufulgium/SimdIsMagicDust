@@ -1,0 +1,80 @@
+﻿using NUnit.Framework;
+using static SimdIsMagicDust.Simd;
+
+namespace SimdIsMagicDust.TestHelpers {
+    public static class int4Tests {
+        [SimdTest] public static int4 TestCons() => new int4(2, 11, 37, 131);
+        [SimdTest] public static int4 TestAdd1() => new int4(2, 11, 37, 131) + new int4(2, -2, 17, 257);
+        [SimdTest] public static int4 TestAdd2() => new int4(2, 11, 37, 131) + 37;
+        [SimdTest] public static int4 TestAdd3() => 37 + new int4(2, 11, 37, 131);
+        [SimdTest] public static int4 TestSub1() => new int4(2, 11, 37, 131) - new int4(2, -2, 17, 257);
+        [SimdTest] public static int4 TestSub2() => new int4(2, 11, 37, 131) - 37;
+        [SimdTest] public static int4 TestSub3() => 37 - new int4(2, 11, 37, 131);
+        [SimdTest] public static int4 TestMul1() => new int4(2, 11, 37, 131) * new int4(2, -2, 17, 257);
+        [SimdTest] public static int4 TestMul2() => new int4(2, 11, 37, 131) * 37;
+        [SimdTest] public static int4 TestMul3() => 37 * new int4(2, 11, 37, 131);
+        [SimdTest] public static int4 TestDiv1() => new int4(2, 11, 37, 131) / new int4(2, -2, 17, 257);
+        [SimdTest] public static int4 TestDiv2() => new int4(2, 11, 37, 131) / 37;
+        [SimdTest] public static int4 TestDiv3() => 37 / new int4(2, 11, 37, 131);
+        [SimdTest] public static int4 TestMod1() => new int4(2, 11, 37, 131) % new int4(2, -2, 17, 257);
+        [SimdTest] public static int4 TestMod2() => new int4(2, 11, 37, 131) % 37;
+        [SimdTest] public static int4 TestMod3() => 37 % new int4(2, 11, 37, 131);
+        [SimdTest] public static int4 TestAnd1() => new int4(2, 11, 37, 131) & new int4(2, -2, 17, 257);
+        [SimdTest] public static int4 TestAnd2() => new int4(2, 11, 37, 131) & 37;
+        [SimdTest] public static int4 TestAnd3() => 37 & new int4(2, 11, 37, 131);
+        [SimdTest] public static int4 TestOr1() => new int4(2, 11, 37, 131) | new int4(2, -2, 17, 257);
+        [SimdTest] public static int4 TestOr2() => new int4(2, 11, 37, 131) | 37;
+        [SimdTest] public static int4 TestOr3() => 37 | new int4(2, 11, 37, 131);
+        [SimdTest] public static int4 TestXor1() => new int4(2, 11, 37, 131) ^ new int4(2, -2, 17, 257);
+        [SimdTest] public static int4 TestXor2() => new int4(2, 11, 37, 131) ^ 37;
+        [SimdTest] public static int4 TestXor3() => 37 ^ new int4(2, 11, 37, 131);
+        [SimdTest] public static int4 TestNeg() => ~new int4(2, 11, 37, 131);
+        [SimdTest] public static int4 TestLSh() => new int4(2, 11, 37, 131) << 1;
+        [SimdTest] public static int4 TestRSh1() => new int4(2, 11, 37, 131) >> 1;
+        [SimdTest] public static int4 TestRSh2() => new int4(2, 11, 37, 131) >>> 1;
+        [SimdTest] public static bool4 TestEq1() => new int4(2, 11, 37, 131) == new int4(2, -2, 17, 257);
+        [SimdTest] public static bool4 TestEq2() => new int4(2, 11, 37, 131) == 37;
+        [SimdTest] public static bool4 TestEq3() => 37 == new int4(2, 11, 37, 131);
+        [SimdTest] public static bool4 TestNeq1() => new int4(2, 11, 37, 131) != new int4(2, -2, 17, 257);
+        [SimdTest] public static bool4 TestNeq2() => new int4(2, 11, 37, 131) != 37;
+        [SimdTest] public static bool4 TestNeq3() => 37 != new int4(2, 11, 37, 131);
+        [SimdTest] public static bool4 TestGt1() => new int4(2, 11, 37, 131) > new int4(2, -2, 17, 257);
+        [SimdTest] public static bool4 TestGt2() => new int4(2, 11, 37, 131) > 37;
+        [SimdTest] public static bool4 TestGt3() => 37 > new int4(2, 11, 37, 131);
+        [SimdTest] public static bool4 TestGte1() => new int4(2, 11, 37, 131) >= new int4(2, -2, 17, 257);
+        [SimdTest] public static bool4 TestGte2() => new int4(2, 11, 37, 131) >= 37;
+        [SimdTest] public static bool4 TestGte3() => 37 >= new int4(2, 11, 37, 131);
+        [SimdTest] public static bool4 TestLt1() => new int4(2, 11, 37, 131) < new int4(2, -2, 17, 257);
+        [SimdTest] public static bool4 TestLt2() => new int4(2, 11, 37, 131) < 37;
+        [SimdTest] public static bool4 TestLt3() => 37 < new int4(2, 11, 37, 131);
+        [SimdTest] public static bool4 TestLte1() => new int4(2, 11, 37, 131) <= new int4(2, -2, 17, 257);
+        [SimdTest] public static bool4 TestLte2() => new int4(2, 11, 37, 131) <= 37;
+        [SimdTest] public static bool4 TestLte3() => 37 <= new int4(2, 11, 37, 131);
+
+        [Test] public static void TestGetX1() => Assert.AreEqual(2, new int4(2, 11, 37, 131)[0]);
+        [Test] public static void TestGetX2() => Assert.AreEqual(2, new int4(2, 11, 37, 131).x);
+        [Test] public static void TestGetY1() => Assert.AreEqual(11, new int4(2, 11, 37, 131)[1]);
+        [Test] public static void TestGetY2() => Assert.AreEqual(11, new int4(2, 11, 37, 131).y);
+        [Test] public static void TestGetZ1() => Assert.AreEqual(37, new int4(2, 11, 37, 131)[2]);
+        [Test] public static void TestGetZ2() => Assert.AreEqual(37, new int4(2, 11, 37, 131).z);
+        [Test] public static void TestGetW1() => Assert.AreEqual(131, new int4(2, 11, 37, 131)[3]);
+        [Test] public static void TestGetW2() => Assert.AreEqual(131, new int4(2, 11, 37, 131).w);
+
+        [SimdTest] public static int4 TestAbs() => Abs(new int4(2, -2, 17, 257));
+        [SimdTest] public static bool TestAny1() => Any(new int4(0, 0, 0, 0));
+        [SimdTest] public static bool TestAny2() => Any(new int4(1, 0, 0, 0));
+        [SimdTest] public static bool TestAny3() => Any(new int4(1, 1, 1, 1));
+        [SimdTest] public static bool TestAll1() => All(new int4(0, 0, 0, 0));
+        [SimdTest] public static bool TestAll2() => All(new int4(1, 0, 0, 0));
+        [SimdTest] public static bool TestAll3() => All(new int4(1, 1, 1, 1));
+        [SimdTest] public static int4 TestClamp() => Clamp(new int4(2, -2, 17, 257), default, new int4(2, 11, 37, 131));
+        [SimdTest] public static int TestDot() => Dot(new int4(2, -2, 17, 257), new int4(2, 11, 37, 131));
+        [SimdTest] public static int4 TestHorizontalAdd() => HorizontalAdd(new int4(2, -2, 17, 257));
+        [SimdTest] public static int4 TestMax() => Max(new int4(2, -2, 17, 257), new int4(2, 11, 37, 131));
+        [SimdTest] public static int4 TestMin() => Min(new int4(2, -2, 17, 257), new int4(2, 11, 37, 131));
+        [SimdTest] public static int4 TestSelect1() => Select((bool4)new int4(0, 0, 0, 0), new int4(2, -2, 17, 257), new int4(2, 11, 37, 131));
+        [SimdTest] public static int4 TestSelect2() => Select((bool4)new int4(1, 0, 0, 0), new int4(2, -2, 17, 257), new int4(2, 11, 37, 131));
+        [SimdTest] public static int4 TestSelect3() => Select((bool4)new int4(1, 1, 1, 1), new int4(2, -2, 17, 257), new int4(2, 11, 37, 131));
+        [SimdTest] public static int4 TestSign() => Sign(new int4(2, -2, 17, 257));
+    }
+}

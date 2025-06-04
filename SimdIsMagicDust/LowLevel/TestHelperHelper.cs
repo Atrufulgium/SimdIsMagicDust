@@ -20,9 +20,9 @@ namespace SimdIsMagicDust.LowLevel {
         /// <see cref="System.Runtime.Intrinsics"/> stuff.
         /// </summary>
 #if DISABLE_MAGIC_DUST
-        public const bool SimdIsDisabled = true;
+        public static bool SimdIsDisabled => true;
 #else
-        public const bool SimdIsDisabled = false;
+        public static bool SimdIsDisabled => false;
 #endif
     }
 }

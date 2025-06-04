@@ -3,9 +3,12 @@ using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
 using NUnit.Framework.Internal.Builders;
 using System;
+#if DISABLE_MAGIC_DUST
 using System.Collections.Generic;
+#endif
 using System.IO;
 using System.Reflection;
+using System.Runtime.Loader;
 
 namespace SimdIsMagicDust.TestHelpers {
     /// <summary>
@@ -46,6 +49,7 @@ namespace SimdIsMagicDust.TestHelpers {
     /// If things don't work as expected, check the comment in the source
     /// above this declaration.
     /// </remarks>
+    #region Some explanation about the build system changes required to make this work.
     // Ideally, you'd have runtime parameterization, but that behaves _so_
     // poorly with this assembly shit. I don't want to have to do this dance
     // every single time.
@@ -73,7 +77,7 @@ namespace SimdIsMagicDust.TestHelpers {
     //            Properties="DefineConstants=DISABLE_MAGIC_DUST;Configuration=$(Configuration);OutputPath=$(OutputPath)Scalar\;IsScalarBuild=true"
     //            Targets="Build" />
     //   <Move SourceFiles="$(OutputPath)Scalar\$(AssemblyName).dll"
-    //         DestinationFiles="$(OutputPath)$(AssemblyName).Scalar.dll" />
+    //         DestinationFiles="$(OutputPath)$(AssemblyName).scalar.dll" />
     // </Target>
     // This tells MSBuild to also build a scalar version with the constant
     // defined, and copy the resulting dll next to the main dll.
@@ -103,7 +107,7 @@ namespace SimdIsMagicDust.TestHelpers {
     // 
     // <Target Name="BuildScalar" AfterTargets="Build" Condition="'$(Configuration)' != 'Scalar' And '$(IsScalarBuild)' != 'true'">
     //   <MSBuild Projects="$(MSBuildProjectFullPath)"
-    //            Properties="Configuration=Scalar;IsScalarBuild=true"
+    //            Properties="DefineConstants=DISABLE_MAGIC_DUST;Configuration=Scalar;IsScalarBuild=true"
     //            Targets="Build" />
     // </Target>
     // 
@@ -128,6 +132,7 @@ namespace SimdIsMagicDust.TestHelpers {
     // need to think about this as everything's commited with the project.
     // In case you actually read this because stuff broke...
     // God help you? It took me a full day to figure this stuff out. Bleh.
+    #endregion
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     internal class SimdTestAttribute : NUnitAttribute, ISimpleTestBuilder, IApplyToTest, IImplyFixture {
 
@@ -146,7 +151,13 @@ namespace SimdIsMagicDust.TestHelpers {
         public TestMethod BuildFrom(IMethodInfo method, Test? suite) {
             TestCaseParameters parms = new();
             try {
-                parms.ExpectedResult = RunScalarVersion(method);
+                var methodName = method.Name;
+                var typeName = method.TypeInfo.FullName;
+                parms.ExpectedResult = 
+                    MultiverseCast.Cast(
+                        ScalarRunner(typeName, methodName),
+                        method.ReturnType.Type
+                    );
             } catch (Exception e) {
                 // There literally does not seem to be any way to log stuff into the test pane.
                 // uhhh then I _guess_ I'll write into the name?
@@ -160,44 +171,49 @@ namespace SimdIsMagicDust.TestHelpers {
             return builder.BuildTestMethod(method, suite, parms);
         }
 
-        private static object? RunScalarVersion(IMethodInfo method) {
-            // Very messy, but it works.
-            var scalarType = GetType(method);
-            var scalarMethod = scalarType?.GetMethod(method.Name);
-            if (scalarType == null || scalarMethod == null) {
-                throw new InvalidOperationException($"Could not resolve method \"{method.Name}\" (of \"{method.TypeInfo.FullName}\") properly:\n  scalarType: {scalarType}\n  scalarMethod: {scalarMethod}");
-            }
-            if (!scalarMethod.IsStatic) {
-                throw new InvalidOperationException("Method must be static.");
+        /// <summary>
+        /// In the default load context, the runtime will happily load
+        /// `SimdIsMagicDustsTests.scalar.dll`, but then look at the deps, see
+        /// "I need `SimdIsMagicDust.dll` (not realising I want `.scalar.dll`),
+        /// think "I have that already", and happily link to the wrong dep.
+        /// <br/>
+        /// To fix that, we need to have a context that manually grabs the
+        /// `.scalar.dll` version, if it exists.
+        /// </summary>
+        class ScalarLoadContext : AssemblyLoadContext {
+            private readonly string basePath;
+
+            public ScalarLoadContext(string basePath) {
+                this.basePath = basePath;
             }
 
-            var res = scalarMethod.Invoke("this param is ignored because static yay", null);
+            protected override Assembly? Load(AssemblyName assemblyName) {
+                var candidatePath = Path.Combine(basePath, $"{assemblyName.Name}.dll");
+                var scalarCandidatePath = Path.Combine(basePath, $"{assemblyName.Name}.scalar.dll");
 
-            // Bit ugly, but: flip the boolean result if we're TestTests.TestTest().
-            if (method.Name.EndsWith("TestTest") && scalarType.Name.EndsWith("TestTests"))
-                res = !(bool)res!;
-            return res;
+                if (File.Exists(scalarCandidatePath)) {
+                    return LoadFromAssemblyPath(scalarCandidatePath);
+                }
+                if (File.Exists(candidatePath)) {
+                    return LoadFromAssemblyPath(candidatePath);
+                }
+                return null;
+            }
         }
 
-        // Cache type info so we do less reflective lookups.
-        // (What's the lifetime of `static` here anyways?
-        //  Can't imagine it being "beyond rebuilds".)
-        static readonly Dictionary<string, Type?> typeCache = new();
-        private static Type? GetType(IMethodInfo method) {
-            string key = method.TypeInfo.FullName;
-            if (typeCache.TryGetValue(key, out var type))
-                return type;
-
-            type = Assembly.GetType(method.TypeInfo.FullName);
-            typeCache.Add(key, type);
-            return type;
-        }
-
-        private static Assembly? assembly = null;
-        private static Assembly Assembly {
+        private static Func<string, string, object?>? scalarRunner = null;
+        private static Func<string, string, object?> ScalarRunner {
             get {
-                if (assembly != null)
-                    return assembly;
+                if (scalarRunner != null)
+                    return scalarRunner;
+
+                // Sanity check to make sure _the test runner_ is not compiled
+                // without magic dust.
+                if (typeof(SimdTestAttribute)
+                    .Assembly
+                    .GetType("SimdIsMagicDust.TestHelpers.MultiversalTranslator")
+                    != null)
+                    throw new InvalidOperationException("you're testing no simd you doofus");
 
                 var testAssemblyLocation = typeof(SimdTestAttribute).Assembly.Location;
                 if (testAssemblyLocation == null || testAssemblyLocation == "") {
@@ -214,9 +230,60 @@ namespace SimdIsMagicDust.TestHelpers {
                 // it's a noop if "the same" assembly is already loaded.
                 // The solution is to use a different AssemblyLoadContext,
                 // which is exactly what Assembly.Load does for you.
-                assembly = Assembly.Load(File.ReadAllBytes(path));
-                return assembly;
+                // Except that doing _this_ somehow fixes my issues.
+                var ctx = new ScalarLoadContext(dir);
+                var scalarAssembly = ctx.LoadFromAssemblyPath(path);
+                var translator = scalarAssembly.GetType("SimdIsMagicDust.TestHelpers.MultiversalTranslator")
+                    ?? throw new InvalidOperationException("Could not get type translator");
+                var translatorMethod = translator.GetMethod("RunScalarVersion")
+                    ?? throw new InvalidOperationException("Could somehow not get translator's translator");
+
+                scalarRunner = (typeName, methodName) =>
+                    translatorMethod.Invoke(null, [typeName, methodName]);
+                return scalarRunner;
             }
         }
     }
+
+#if DISABLE_MAGIC_DUST
+    // (TODO: Still necessary? I went insane trying to separate everything but
+    //  perhaps the problem was just the dependency thing.
+    //  Let's just "not touch this" as things work and aren't slow for now.)
+    static class MultiversalTranslator {
+
+        static readonly Assembly thisAssembly = typeof(MultiversalTranslator).Assembly;
+
+        // Cache type info so we do less reflective lookups.
+        // (What's the lifetime of `static` here anyways?
+        //  Can't imagine it being "beyond rebuilds".)
+        static readonly Dictionary<string, Type?> typeCache = new();
+
+        public static object? RunScalarVersion(string typeName, string methodName) {
+            var scalarType = GetType(typeName)
+                ?? throw new InvalidOperationException("Could not get translated test method type");
+            var scalarMethod = scalarType.GetMethod(methodName)
+                ?? throw new InvalidOperationException("Could not get translated test method");
+
+            if (!scalarMethod.IsStatic) {
+                throw new InvalidOperationException("Test method must be static.");
+            }
+
+            var res = scalarMethod.Invoke("this param is ignored because static yay", null);
+
+            // Bit ugly, but: flip the boolean result if we're TestTests.TestTest().
+            if (methodName.EndsWith("TestTest") && typeName.EndsWith("TestTests"))
+                res = !(bool)res!;
+            return res;
+        }
+
+        static Type? GetType(string key) {
+            if (typeCache.TryGetValue(key, out var type))
+                return type;
+
+            type = thisAssembly.GetType(key);
+            typeCache.Add(key, type);
+            return type;
+        }
+    }
+#endif
 }
